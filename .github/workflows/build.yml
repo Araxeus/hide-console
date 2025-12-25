@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    name: Build (${{ matrix.arch }})
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: [x64, x86]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Build
+        run: build.bat
+        shell: cmd
+
+      - name: Run tests
+        run: test.bat
+        shell: cmd
+
+      - name: Rename artifact
+        run: |
+          move hide.exe hide-${{ matrix.arch }}.exe
+        shell: cmd
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hide-console-${{ matrix.arch }}
+          path: hide-${{ matrix.arch }}.exe
+          if-no-files-found: error
+
+  attest:
+    name: Attest Build Provenance
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+
+    steps:
+      - name: Download x64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hide-console-x64
+
+      - name: Download x86 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hide-console-x86
+
+      - name: Attest x64 build
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: hide-x64.exe
+
+      - name: Attest x86 build
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: hide-x86.exe
+
+  release:
+    name: Create Release
+    needs: [build, attest]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download x64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hide-console-x64
+
+      - name: Download x86 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: hide-console-x86
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            hide-x64.exe
+            hide-x86.exe
+          generate_release_notes: true
+          draft: false
+          prerelease: false
