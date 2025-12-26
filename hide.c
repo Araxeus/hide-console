@@ -14,44 +14,57 @@
 
 static BOOL g_quiet = FALSE;
 
+// Skip whitespace, return pointer to next non-whitespace
+static LPSTR SkipWs(LPSTR p) {
+  while (*p == ' ' || *p == '\t') p++;
+  return p;
+}
+
+// Check if char is whitespace or end of string
+#define IS_END(c) ((c) == ' ' || (c) == '\t' || !(c))
+
 // Returns pointer past match if arg matches at p (followed by space/tab/end), else NULL
 static LPCSTR MatchArg(LPCSTR p, LPCSTR arg) {
   while (*arg && *p == *arg) { p++; arg++; }
-  return (!*arg && (*p == ' ' || *p == '\t' || !*p)) ? p : NULL;
+  return (!*arg && IS_END(*p)) ? p : NULL;
+}
+
+// Append string to buffer with bounds check, return new position
+static char *Append(char *p, char *end, LPCSTR s) {
+  while (*s && p < end) *p++ = *s++;
+  return p;
+}
+
+// Close array of handles (skips NULL)
+static void CloseHandles(HANDLE *h, int n) {
+  for (int i = 0; i < n; i++)
+    if (h[i]) CloseHandle(h[i]);
 }
 
 #pragma function(memset)
 void *__cdecl memset(void *dest, int c, size_t count) {
   char *p = (char *)dest;
-  while (count--)
-    *p++ = (char)c;
+  while (count--) *p++ = (char)c;
   return dest;
 }
 
+// --- Core functions ---
+
 static void ShowError(LPCSTR cmd) {
-  if (g_quiet)
-    return;
+  if (g_quiet) return;
+
   char msg[256], err[128];
-  DWORD n =
-      FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                     NULL, GetLastError(), 0, err, sizeof(err), NULL);
-  if (!n) {
-    err[0] = '?';
-    err[1] = '\0';
-  }
+  DWORD n = FormatMessageA(
+      FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+      NULL, GetLastError(), 0, err, sizeof(err), NULL);
+  if (!n) { err[0] = '?'; err[1] = '\0'; }
 
   // Build: "Failed: <cmd>\n\n<error>"
   char *p = msg, *end = msg + sizeof(msg) - 1;
-  for (LPCSTR s = "Failed: "; *s && p < end;)
-    *p++ = *s++;
-  for (LPCSTR s = cmd; *s && p < end;)
-    *p++ = *s++;
-  if (p < end)
-    *p++ = '\n';
-  if (p < end)
-    *p++ = '\n';
-  for (LPCSTR s = err; *s && p < end;)
-    *p++ = *s++;
+  p = Append(p, end, "Failed: ");
+  p = Append(p, end, cmd);
+  p = Append(p, end, "\n\n");
+  p = Append(p, end, err);
   *p = '\0';
 
   MessageBoxA(NULL, msg, TITLE, MB_OK | MB_ICONERROR);
@@ -92,18 +105,14 @@ static void SetupPipes(STARTUPINFOA *si, HANDLE *h) {
 }
 
 static LPSTR ParseCmd(LPSTR p) {
-  // Skip exe name
+  // Skip exe name (may be quoted)
   if (*p == '"') {
-    while (*++p && *p != '"')
-      ;
-    if (*p)
-      p++;
+    while (*++p && *p != '"');
+    if (*p) p++;
   } else {
-    while (*p && *p != ' ' && *p != '\t')
-      p++;
+    while (*p && !IS_END(*p)) p++;
   }
-  while (*p == ' ' || *p == '\t')
-    p++;
+  p = SkipWs(p);
 
   // Check for -q/--quiet or -v/--version
   while (*p == '-') {
@@ -116,10 +125,10 @@ static LPSTR ParseCmd(LPSTR p) {
                (next = MatchArg(p, "--version"))) {
       MessageBoxA(NULL, TITLE " " VERSION, TITLE, MB_OK);
       ExitProcess(0);
-    } else
+    } else {
       break;
-    while (*p == ' ' || *p == '\t')
-      p++;
+    }
+    p = SkipWs(p);
   }
   return p;
 }
@@ -142,16 +151,12 @@ void __stdcall WinMainCRTStartup(void) {
 
   if (!CreateProcessA(NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi)) {
     ShowError(cmd);
-    for (int i = 0; i < 4; i++)
-      if (h[i])
-        CloseHandle(h[i]);
+    CloseHandles(h, 4);
     ExitProcess(1);
   }
 
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
-  for (int i = 0; i < 4; i++)
-    if (h[i])
-      CloseHandle(h[i]);
+  CloseHandles(h, 4);
   ExitProcess(0);
 }
