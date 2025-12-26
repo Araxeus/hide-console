@@ -34,8 +34,10 @@ hide.exe [options] <command> [arguments...]
 
 | Option | Description |
 |--------|-------------|
-| `-q`, `--quiet` | Suppress error dialogs (useful for scripts and scheduled tasks) |
+| `-h`, `--help` | Show help message |
 | `-v`, `--version` | Show version information |
+| `-q`, `--quiet` | Suppress all output |
+| `-w`, `--wait` | Wait for command to finish and return its exit code |
 
 ### Examples
 
@@ -45,6 +47,7 @@ hide.exe wsl --exec xterm -display :0
 hide.exe cmd /c start notepad
 hide.exe powershell -File script.ps1
 hide.exe -q some-command-that-might-fail
+hide.exe -w cmd /c my-script.bat && echo Success
 ```
 
 ## Building

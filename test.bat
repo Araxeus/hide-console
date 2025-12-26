@@ -183,6 +183,104 @@ if !ERRORLEVEL! EQU 0 (
 )
 
 :: ----------------------------------------
+:: Test 13: --wait flag returns child exit code (success)
+:: ----------------------------------------
+echo.
+echo [Test 13] Wait flag returns child exit code (success)
+hide.exe --wait cmd /c exit 0
+if !ERRORLEVEL! EQU 0 (
+    echo   PASS: --wait returned exit code 0
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 0, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 14: --wait flag returns child exit code (failure)
+:: ----------------------------------------
+echo.
+echo [Test 14] Wait flag returns child exit code (failure)
+hide.exe --wait cmd /c exit 42
+if !ERRORLEVEL! EQU 42 (
+    echo   PASS: --wait returned exit code 42
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 42, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 15: -w flag (short form)
+:: ----------------------------------------
+echo.
+echo [Test 15] Wait flag -w (short form)
+hide.exe -w cmd /c exit 7
+if !ERRORLEVEL! EQU 7 (
+    echo   PASS: -w returned exit code 7
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 7, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 16: Combined -q -w flags
+:: ----------------------------------------
+echo.
+echo [Test 16] Combined -q -w flags
+hide.exe -q -w cmd /c exit 99
+if !ERRORLEVEL! EQU 99 (
+    echo   PASS: Combined flags work correctly
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 99, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 17: -h flag shows help and exits 0
+:: ----------------------------------------
+echo.
+echo [Test 17] Help flag -h exits with code 0
+hide.exe -h
+if !ERRORLEVEL! EQU 0 (
+    echo   PASS: -h returned exit code 0
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 0, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 18: -v flag shows version and exits 0
+:: ----------------------------------------
+echo.
+echo [Test 18] Version flag -v exits with code 0
+hide.exe -v
+if !ERRORLEVEL! EQU 0 (
+    echo   PASS: -v returned exit code 0
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 0, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 19: Without --wait, exit code is always 0 for valid command
+:: ----------------------------------------
+echo.
+echo [Test 19] Without --wait, exit code is 0 regardless of child
+hide.exe cmd /c exit 55
+if !ERRORLEVEL! EQU 0 (
+    echo   PASS: Without --wait, returned 0 ^(fire-and-forget^)
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 0, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
 :: Summary
 :: ----------------------------------------
 echo.
