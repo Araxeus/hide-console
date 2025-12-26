@@ -17,9 +17,12 @@ Perfect for Windows shortcuts, scheduled tasks, or anywhere you want to run a co
 
 ## Download
 
-Pre-built binaries for both 64-bit (`hide-x64.exe`) and 32-bit (`hide-x86.exe`) are available on the [Releases](https://github.com/Araxeus/hide-console/releases/latest) page.
+Pre-built binaries are available on the [Releases](https://github.com/Araxeus/hide-console/releases/latest) page:
 
-> **Note:** Use the 64-bit version (`hide-x64.exe`) if you need to access `wsl.exe`.
+| File | Architecture | Notes |
+|------|--------------|-------|
+| `hide.exe` | 64-bit (x64) | **Recommended** - works with `wsl.exe` |
+| `hide-x86.exe` | 32-bit (x86) | For legacy 32-bit systems |
 
 ## Usage
 
@@ -108,7 +111,7 @@ Release binaries are built automatically by [GitHub Actions](https://github.com/
 You can verify that a release binary was built from this repository:
 
 ```
-gh attestation verify hide-x64.exe --repo Araxeus/hide-console
+gh attestation verify hide.exe --repo Araxeus/hide-console
 gh attestation verify hide-x86.exe --repo Araxeus/hide-console
 ```
 

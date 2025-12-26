@@ -35,14 +35,18 @@ jobs:
 
       - name: Rename artifact
         run: |
-          move hide.exe hide-${{ matrix.arch }}.exe
+          if "${{ matrix.arch }}"=="x64" (
+            rem x64 is the default, keep simple name
+          ) else (
+            move hide.exe hide-${{ matrix.arch }}.exe
+          )
         shell: cmd
 
       - name: Upload artifact
         uses: actions/upload-artifact@v6
         with:
           name: hide-console-${{ matrix.arch }}
-          path: hide-${{ matrix.arch }}.exe
+          path: ${{ matrix.arch == 'x64' && 'hide.exe' || format('hide-{0}.exe', matrix.arch) }}
           if-no-files-found: error
 
   attest:
@@ -70,7 +74,7 @@ jobs:
       - name: Attest x64 build
         uses: actions/attest-build-provenance@v3
         with:
-          subject-path: hide-x64.exe
+          subject-path: hide.exe
 
       - name: Attest x86 build
         uses: actions/attest-build-provenance@v3
@@ -101,7 +105,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            hide-x64.exe
+            hide.exe
             hide-x86.exe
           generate_release_notes: true
           draft: false
