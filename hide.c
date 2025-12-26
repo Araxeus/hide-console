@@ -14,6 +14,12 @@
 
 static BOOL g_quiet = FALSE;
 
+// Returns pointer past match if arg matches at p (followed by space/tab/end), else NULL
+static LPCSTR MatchArg(LPCSTR p, LPCSTR arg) {
+  while (*arg && *p == *arg) { p++; arg++; }
+  return (!*arg && (*p == ' ' || *p == '\t' || !*p)) ? p : NULL;
+}
+
 #pragma function(memset)
 void *__cdecl memset(void *dest, int c, size_t count) {
   char *p = (char *)dest;
@@ -101,22 +107,13 @@ static LPSTR ParseCmd(LPSTR p) {
 
   // Check for -q/--quiet or -v/--version
   while (*p == '-') {
-    if ((p[1] == 'q' || p[1] == 'Q') &&
-        (p[2] == ' ' || p[2] == '\t' || !p[2])) {
+    LPCSTR next;
+    if ((next = MatchArg(p, "-q")) || (next = MatchArg(p, "-Q")) ||
+        (next = MatchArg(p, "--quiet"))) {
       g_quiet = TRUE;
-      p += 2;
-    } else if (p[1] == '-' && p[2] == 'q' && p[3] == 'u' && p[4] == 'i' &&
-               p[5] == 'e' && p[6] == 't' &&
-               (p[7] == ' ' || p[7] == '\t' || !p[7])) {
-      g_quiet = TRUE;
-      p += 7;
-    } else if ((p[1] == 'v' || p[1] == 'V') &&
-               (p[2] == ' ' || p[2] == '\t' || !p[2])) {
-      MessageBoxA(NULL, TITLE " " VERSION, TITLE, MB_OK);
-      ExitProcess(0);
-    } else if (p[1] == '-' && p[2] == 'v' && p[3] == 'e' && p[4] == 'r' &&
-               p[5] == 's' && p[6] == 'i' && p[7] == 'o' && p[8] == 'n' &&
-               (p[9] == ' ' || p[9] == '\t' || !p[9])) {
+      p = (LPSTR)next;
+    } else if ((next = MatchArg(p, "-v")) || (next = MatchArg(p, "-V")) ||
+               (next = MatchArg(p, "--version"))) {
       MessageBoxA(NULL, TITLE " " VERSION, TITLE, MB_OK);
       ExitProcess(0);
     } else
