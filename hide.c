@@ -5,7 +5,7 @@
 // Optimized to not require the C runtime library.
 
 #define TITLE "HideConsole"
-#define VERSION "1.0.0"
+#define VERSION "0.9.0"
 #define USAGE                                                                  \
   "Usage: hide.exe [-q] [-v] <command> [args...]\n\n"                          \
   "-q\tSuppress error dialogs\n"                                               \
