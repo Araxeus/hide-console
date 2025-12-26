@@ -60,7 +60,7 @@ static void ShowError(LPCSTR cmd) {
     err[0] = '?';
     err[1] = '\0';
   }
-  for (LPCSTR s = "hide: "; *s && p < end;)
+  for (LPCSTR s = "hide: error: "; *s && p < end;)
     *p++ = *s++;
   for (LPCSTR s = cmd; *s && p < end;)
     *p++ = *s++;

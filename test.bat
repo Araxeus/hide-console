@@ -281,6 +281,76 @@ if !ERRORLEVEL! EQU 0 (
 )
 
 :: ----------------------------------------
+:: Test 20: -W flag (uppercase wait)
+:: ----------------------------------------
+echo.
+echo [Test 20] Wait flag -W (uppercase)
+hide.exe -W cmd /c exit 23
+if !ERRORLEVEL! EQU 23 (
+    echo   PASS: -W returned exit code 23
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 23, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 21: --help flag (long form)
+:: ----------------------------------------
+echo.
+echo [Test 21] Help flag --help exits with code 0
+hide.exe --help
+if !ERRORLEVEL! EQU 0 (
+    echo   PASS: --help returned exit code 0
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 0, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 22: -? flag (alternative help)
+:: ----------------------------------------
+echo.
+echo [Test 22] Help flag -? exits with code 0
+hide.exe -?
+if !ERRORLEVEL! EQU 0 (
+    echo   PASS: -? returned exit code 0
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 0, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 23: --version flag (long form)
+:: ----------------------------------------
+echo.
+echo [Test 23] Version flag --version exits with code 0
+hide.exe --version
+if !ERRORLEVEL! EQU 0 (
+    echo   PASS: --version returned exit code 0
+    set /a PASS+=1
+) else (
+    echo   FAIL: Expected exit code 0, got !ERRORLEVEL!
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
+:: Test 24: Flags after command are passed to child
+:: ----------------------------------------
+echo.
+echo [Test 24] Flags after command passed to child (not consumed by hide)
+hide.exe -w cmd /c "echo -q"
+if !ERRORLEVEL! EQU 0 (
+    echo   PASS: -q after cmd was passed to child
+    set /a PASS+=1
+) else (
+    echo   FAIL: Flag after command caused error
+    set /a FAIL+=1
+)
+
+:: ----------------------------------------
 :: Summary
 :: ----------------------------------------
 echo.
