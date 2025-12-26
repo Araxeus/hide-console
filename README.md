@@ -75,8 +75,6 @@ cl.exe /nologo /Zi /Od /c /Fo:hide.obj hide.c
 link.exe /nologo /DEBUG /ENTRY:WinMainCRTStartup /SUBSYSTEM:WINDOWS hide.obj resource.res kernel32.lib user32.lib
 ```
 
-> **Note:** Build as a 64-bit application to access `wsl.exe`.
-
 ### Testing
 
 After building, run the test suite:
@@ -95,47 +93,13 @@ This runs automated tests for basic execution, quiet mode flags, error handling,
 | Dynamic CRT (/MD) | ~10 KB |
 | Static CRT (/MT) | ~600 KB |
 
-## Troubleshooting
-
-### Basic Test
+## Basic Test
 
 ```
 hide.exe calc
 ```
 
 If Calculator opens, hide.exe is working correctly.
-
-### Setting Environment Variables
-
-Use `env` to set variables like `$DISPLAY`:
-
-```
-hide.exe wsl --exec env DISPLAY=:0 /usr/bin/program
-```
-
-### Running Scripts
-
-If running a script, specify the interpreter explicitly:
-
-```
-hide.exe wsl --exec /bin/sh /full/path/to/script.sh
-hide.exe wsl --exec /usr/bin/python /path/to/script.py
-```
-
-### WSL2 Display Issues
-
-For WSL2, the display address is different. Create a helper script (`display.sh`):
-
-```sh
-#!/bin/sh
-DISPLAY=$(awk '/nameserver/ {print $2; exit}' /etc/resolv.conf):0 exec "${@}"
-```
-
-Then use it like:
-
-```
-hide.exe wsl --exec /bin/sh /path/to/display.sh /usr/bin/xterm
-```
 
 ## Security & Verification
 
