@@ -72,12 +72,12 @@ jobs:
           name: hide-console-x86
 
       - name: Attest x64 build
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: hide.exe
 
       - name: Attest x86 build
-        uses: actions/attest-build-provenance@v3
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: hide-x86.exe
 
