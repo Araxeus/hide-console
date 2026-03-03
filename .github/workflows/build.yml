@@ -113,21 +113,13 @@ jobs:
           PREV_TAG=$(git tag --sort=-version:refname | grep -E '^v[0-9]' | sed -n '2p')
           echo "tag=$PREV_TAG" >> $GITHUB_OUTPUT
 
-      - name: Get job ID
-        id: job_id
-        run: |
-          JOB_ID=$(curl -s -H "Authorization: Bearer ${{ github.token }}" \
-            "${{ github.api_url }}/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/jobs" \
-            | jq -r '.jobs[] | select(.name == "Create Release") | .id')
-          echo "id=$JOB_ID" >> $GITHUB_OUTPUT
-
       - name: Generate release notes
         id: release_notes
         run: |
           PREV_TAG="${{ steps.prev_tag.outputs.tag }}"
           CURRENT_TAG="${{ github.ref_name }}"
           REPO_URL="${{ github.server_url }}/${{ github.repository }}"
-          RUN_URL="${REPO_URL}/actions/runs/${{ github.run_id }}/job/${{ steps.job_id.outputs.id }}"
+          RUN_URL="${REPO_URL}/actions/runs/${{ github.run_id }}"
 
           echo "## What's Changed" > release_notes.md
           echo "" >> release_notes.md
