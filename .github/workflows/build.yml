@@ -99,12 +99,12 @@ jobs:
           fetch-depth: 0
 
       - name: Download x64 artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: hide-console-x64
 
       - name: Download x86 artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: hide-console-x86
 
