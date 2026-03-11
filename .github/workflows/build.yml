@@ -134,11 +134,9 @@ jobs:
           echo "> *built using githubs actions ([logs](${RUN_URL})) - see [Attestations](${REPO_URL}/attestations) and  [README#security--verification](${REPO_URL}#security--verification)*" >> release_notes.md
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: ncipollo/release-action@v1
         with:
-          files: |
-            hide.exe
-            hide-x86.exe
-          body_path: release_notes.md
-          draft: false
-          prerelease: false
+          artifacts: hide.exe,hide-x86.exe
+          artifactErrorsFailBuild: true
+          bodyFile: release_notes.md
+          immutableCreate: true
